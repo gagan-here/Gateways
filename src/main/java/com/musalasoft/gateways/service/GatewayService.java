@@ -5,6 +5,7 @@ import com.musalasoft.gateways.dtos.PeripheralDeviceDTO;
 import com.musalasoft.gateways.entities.GatewayEntity;
 import com.musalasoft.gateways.entities.PeripheralDeviceEntity;
 import com.musalasoft.gateways.repository.GatewayRepository;
+import com.musalasoft.gateways.repository.PeripheralDeviceRepository;
 import com.musalasoft.gateways.util.GatewayResponse;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ public class GatewayService {
 
     @Autowired
     private GatewayRepository gatewayRepository;
+
+    private PeripheralDeviceRepository deviceRepository;
 
     public ResponseEntity<GatewayResponse<List<GatewayDTO>>> getAllGateways() {
         List<GatewayEntity> gatewayEntities = gatewayRepository.findAll();
@@ -73,6 +76,23 @@ public class GatewayService {
         } else {
             GatewayResponse<String> response = new GatewayResponse<>(404,
                 "Gateway not found with serial number: " + serialNumber);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    public ResponseEntity<GatewayResponse<String>> removeDeviceFromGateway(Long deviceId) {
+        Optional<PeripheralDeviceEntity> device = deviceRepository.findById(deviceId);
+        if (device.isPresent()) {
+            PeripheralDeviceEntity peripheralDevice = device.get();
+            GatewayEntity gateway = peripheralDevice.getGateway();
+            gateway.getDevices().remove(peripheralDevice);
+            deviceRepository.delete(peripheralDevice);
+            GatewayResponse<String> response = new GatewayResponse<>(200,
+                "Device removed successfully from a gateway");
+            return ResponseEntity.ok(response);
+        } else {
+            GatewayResponse<String> response = new GatewayResponse<>(404,
+                "Device not found with id: " + deviceId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
