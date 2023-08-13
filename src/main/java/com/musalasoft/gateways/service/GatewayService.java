@@ -23,6 +23,7 @@ public class GatewayService {
     @Autowired
     private GatewayRepository gatewayRepository;
 
+    @Autowired
     private PeripheralDeviceRepository deviceRepository;
 
     public ResponseEntity<GatewayResponse<List<GatewayDTO>>> getAllGateways() {
