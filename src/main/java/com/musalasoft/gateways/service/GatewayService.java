@@ -52,6 +52,25 @@ public class GatewayService {
         }
     }
 
+    public ResponseEntity<GatewayResponse<?>> createGateway(GatewayDTO gatewayDTO) {
+        Optional<GatewayEntity> gatewayEntity = gatewayRepository.findBySerialNumber(
+            gatewayDTO.getSerialNumber());
+        if (gatewayEntity.isPresent()) {
+            GatewayResponse<String> response = new GatewayResponse<>(404,
+                "Gateway with serial number: " + gatewayDTO.getSerialNumber() + " already exists!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        GatewayEntity gateway = new GatewayEntity(
+            gatewayDTO.getSerialNumber(),
+            gatewayDTO.getName(),
+            gatewayDTO.getIpv4Address()
+        );
+        gatewayRepository.save(gateway);
+        GatewayResponse<GatewayDTO> response = new GatewayResponse<>(200,
+            "Gateway saved successfully in database", convertToDto(gateway));
+        return ResponseEntity.ok(response);
+    }
+
     public ResponseEntity<GatewayResponse<String>> addDeviceToGateway(String serialNumber,
         List<PeripheralDeviceDTO> peripheralDevice) {
         Optional<GatewayEntity> gatewayEntity = gatewayRepository.findBySerialNumber(serialNumber);

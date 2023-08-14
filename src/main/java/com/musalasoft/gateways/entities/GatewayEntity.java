@@ -37,4 +37,10 @@ public class GatewayEntity {
 
     @OneToMany(mappedBy = "gateway", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PeripheralDeviceEntity> devices = new ArrayList<>();
+
+    public GatewayEntity(String serialNumber, String name, String ipv4Address) {
+        this.serialNumber = serialNumber;
+        this.name = name;
+        this.ipv4Address = ipv4Address;
+    }
 }
