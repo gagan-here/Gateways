@@ -22,6 +22,18 @@ public class GatewayController {
     @Autowired
     private GatewayService gatewayService;
 
+    @PostMapping
+    public ResponseEntity<GatewayResponse<?>> createGateway(@RequestBody GatewayDTO gatewayDTO) {
+        return gatewayService.createGateway(gatewayDTO);
+    }
+
+    @PostMapping("/{gatewaySerialNumber}/devices")
+    public ResponseEntity<GatewayResponse<String>> addDeviceToGateway(
+        @PathVariable String gatewaySerialNumber,
+        @RequestBody List<PeripheralDeviceDTO> peripheralDevice) {
+        return gatewayService.addDeviceToGateway(gatewaySerialNumber, peripheralDevice);
+    }
+
     @GetMapping
     public ResponseEntity<GatewayResponse<List<GatewayDTO>>> getAllGateways() {
         return gatewayService.getAllGateways();
@@ -31,13 +43,6 @@ public class GatewayController {
     public ResponseEntity<GatewayResponse<?>> getGatewayBySerialNumber(
         @PathVariable String serialNumber) {
         return gatewayService.getGatewayBySerialNumber(serialNumber);
-    }
-
-    @PostMapping("/{gatewaySerialNumber}/devices")
-    public ResponseEntity<GatewayResponse<String>> addDeviceToGateway(
-        @PathVariable String gatewaySerialNumber,
-        @RequestBody List<PeripheralDeviceDTO> peripheralDevice) {
-        return gatewayService.addDeviceToGateway(gatewaySerialNumber, peripheralDevice);
     }
 
     @DeleteMapping("/devices/{deviceId}")
