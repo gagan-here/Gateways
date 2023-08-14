@@ -77,6 +77,13 @@ public class GatewayService {
 
         if (gatewayEntity.isPresent()) {
             GatewayEntity gateway = gatewayEntity.get();
+
+            if (gateway.getDevices().size() >= 10) {
+                GatewayResponse<String> response = new GatewayResponse<>(400,
+                    "No more than 10 peripheral devices are allowed for a gateway");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
             List<PeripheralDeviceEntity> peripheralDevices = peripheralDevice.stream()
                 .map(peripheralDeviceDTO -> {
                     PeripheralDeviceEntity peripheralDeviceEntity = new PeripheralDeviceEntity();
