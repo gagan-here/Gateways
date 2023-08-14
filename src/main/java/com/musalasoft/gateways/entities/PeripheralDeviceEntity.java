@@ -1,14 +1,14 @@
 package com.musalasoft.gateways.entities;
 
 import com.musalasoft.gateways.enums.PeripheralDeviceStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +21,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PeripheralDeviceEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,4 +39,10 @@ public class PeripheralDeviceEntity {
     @JoinColumn(name = "gateway_id")
     private GatewayEntity gateway;
 
+    public PeripheralDeviceEntity(String uid, String vendor, PeripheralDeviceStatus status) {
+        this.uid = uid;
+        this.vendor = vendor;
+        this.dateCreated = LocalDate.now();
+        this.status = status;
+    }
 }
