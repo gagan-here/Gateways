@@ -15,9 +15,9 @@ public class GatewayResponse<T> {
     private String message;
     private T data;
 
-    public GatewayResponse(int status, T message) {
+    public GatewayResponse(int status, String message) {
         this.status = status;
-        this.data = message;
+        this.message = message;
     }
 
 }
