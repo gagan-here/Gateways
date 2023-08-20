@@ -30,7 +30,7 @@ public class GatewayEntity {
 
     private String ipv4Address;
 
-    @OneToMany(mappedBy = "gateway", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "gateway", cascade = CascadeType.ALL)
     private List<PeripheralDeviceEntity> devices = new ArrayList<>();
 
     public GatewayEntity(String serialNumber, String name, String ipv4Address) {
