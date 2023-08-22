@@ -7,7 +7,6 @@ import com.musalasoft.gateways.entities.PeripheralDeviceEntity;
 import com.musalasoft.gateways.repository.GatewayRepository;
 import com.musalasoft.gateways.repository.PeripheralDeviceRepository;
 import com.musalasoft.gateways.util.GatewayResponse;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +28,7 @@ public class GatewayService {
     public ResponseEntity<GatewayResponse<List<GatewayDTO>>> getAllGateways() {
         List<GatewayEntity> gatewayEntities = gatewayRepository.findAll();
 
-        // Convert the entities to DTOs
+        // Convert List of entities to List of DTOs
         List<GatewayDTO> gateways = convertToListDto(gatewayEntities);
         GatewayResponse<List<GatewayDTO>> response = new GatewayResponse<>(200,
             "Gateways Retrieved successfully", gateways);
@@ -98,7 +97,7 @@ public class GatewayService {
             gateway.setDevices(peripheralDevices);
             gatewayRepository.save(gateway);
             GatewayResponse<String> response = new GatewayResponse<>(200,
-                "Device added successfully in gateway");
+                "Device added successfully in " + gateway.getName() + " gateway");
             return ResponseEntity.ok(response);
         } else {
             GatewayResponse<String> response = new GatewayResponse<>(404,
