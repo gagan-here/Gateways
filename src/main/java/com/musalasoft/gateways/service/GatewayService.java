@@ -55,9 +55,9 @@ public class GatewayService {
         Optional<GatewayEntity> gatewayEntity = gatewayRepository.findBySerialNumber(
             gatewayDTO.getSerialNumber());
         if (gatewayEntity.isPresent()) {
-            GatewayResponse<String> response = new GatewayResponse<>(404,
+            GatewayResponse<String> response = new GatewayResponse<>(409,
                 "Gateway with serial number: " + gatewayDTO.getSerialNumber() + " already exists!");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
         GatewayEntity gateway = new GatewayEntity(
             gatewayDTO.getSerialNumber(),

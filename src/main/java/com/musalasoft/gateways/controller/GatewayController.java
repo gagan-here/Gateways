@@ -5,6 +5,7 @@ import com.musalasoft.gateways.dtos.PeripheralDeviceDTO;
 import com.musalasoft.gateways.service.GatewayService;
 import com.musalasoft.gateways.util.GatewayResponse;
 import java.util.List;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,7 +24,8 @@ public class GatewayController {
     private GatewayService gatewayService;
 
     @PostMapping
-    public ResponseEntity<GatewayResponse<?>> createGateway(@RequestBody GatewayDTO gatewayDTO) {
+    public ResponseEntity<GatewayResponse<?>> createGateway(
+        @Valid @RequestBody GatewayDTO gatewayDTO) {
         return gatewayService.createGateway(gatewayDTO);
     }
 
