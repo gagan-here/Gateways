@@ -7,7 +7,7 @@ import com.musalasoft.gateways.entities.PeripheralDeviceEntity;
 import com.musalasoft.gateways.repository.GatewayRepository;
 import com.musalasoft.gateways.repository.PeripheralDeviceRepository;
 import com.musalasoft.gateways.util.GatewayResponse;
-import java.util.ArrayList;
+import com.musalasoft.gateways.util.GatewayUtility;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,7 +29,7 @@ public class GatewayService {
         List<GatewayEntity> gatewayEntities = gatewayRepository.findAll();
 
         // Convert List of entities to List of DTOs
-        List<GatewayDTO> gateways = convertToListDto(gatewayEntities);
+        List<GatewayDTO> gateways = GatewayUtility.convertToListDto(gatewayEntities);
         GatewayResponse<List<GatewayDTO>> response = new GatewayResponse<>(200,
             "Gateways Retrieved successfully", gateways);
         return ResponseEntity.ok(response);
@@ -42,7 +42,7 @@ public class GatewayService {
 
         if (gateway.isPresent()) {
             GatewayResponse<GatewayDTO> response = new GatewayResponse<>(200,
-                "Gateway retrieved successfully", convertToDto(gateway.get()));
+                "Gateway retrieved successfully", GatewayUtility.convertToDto(gateway.get()));
             return ResponseEntity.ok(response);
         } else {
             GatewayResponse<String> response = new GatewayResponse<>(404,
@@ -66,7 +66,7 @@ public class GatewayService {
         );
         gatewayRepository.save(gateway);
         GatewayResponse<GatewayDTO> response = new GatewayResponse<>(200,
-            "Gateway saved successfully in database", convertToDto(gateway));
+            "Gateway saved successfully in database", GatewayUtility.convertToDto(gateway));
         return ResponseEntity.ok(response);
     }
 
@@ -142,40 +142,5 @@ public class GatewayService {
                 "Device not found with id: " + deviceId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-    }
-
-    private List<GatewayDTO> convertToListDto(List<GatewayEntity> gatewayEntities) {
-        List<GatewayDTO> gatewayDTOs = new ArrayList<>();
-        for (GatewayEntity gatewayEntity : gatewayEntities) {
-            gatewayDTOs.add(convertToDto(gatewayEntity));
-        }
-        return gatewayDTOs;
-    }
-
-    private GatewayDTO convertToDto(GatewayEntity gatewayEntity) {
-        return new GatewayDTO(
-            gatewayEntity.getSerialNumber(),
-            gatewayEntity.getName(),
-            gatewayEntity.getIpv4Address(),
-            convertToListDeviceDto(gatewayEntity.getDevices())
-        );
-    }
-
-    private List<PeripheralDeviceDTO> convertToListDeviceDto(
-        List<PeripheralDeviceEntity> deviceEntities) {
-        List<PeripheralDeviceDTO> peripheralDeviceDTOS = new ArrayList<>();
-        for (PeripheralDeviceEntity deviceEntity : deviceEntities) {
-            peripheralDeviceDTOS.add(convertDeviceToDto(deviceEntity));
-        }
-        return peripheralDeviceDTOS;
-    }
-
-    private PeripheralDeviceDTO convertDeviceToDto(PeripheralDeviceEntity deviceEntity) {
-        return new PeripheralDeviceDTO(
-            deviceEntity.getUid(),
-            deviceEntity.getVendor(),
-            deviceEntity.getDateCreated(),
-            deviceEntity.getStatus()
-        );
     }
 }
