@@ -83,15 +83,10 @@ public class GatewayService {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            boolean deviceExists;
-
-            for (PeripheralDeviceEntity entity: gateway.getDevices()){
-                deviceExists = peripheralDevice.stream().anyMatch(device -> device.getUid().equals(entity.getUid()));
-                if (deviceExists) {
-                    GatewayResponse<String> response = new GatewayResponse<>(409,
-                        "Device with uid: " + entity.getUid() + " already exists in a gateway!");
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-                }
+            ResponseEntity<GatewayResponse<String>> devicePresent = checkIfDeviceExistsInAGateway(
+                peripheralDevice, gateway);
+            if (devicePresent != null) {
+                return devicePresent;
             }
 
             List<PeripheralDeviceEntity> peripheralDevices = peripheralDevice.stream()
@@ -115,6 +110,21 @@ public class GatewayService {
                 "Gateway not found with serial number: " + serialNumber);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
+    }
+
+    private static ResponseEntity<GatewayResponse<String>> checkIfDeviceExistsInAGateway(
+        List<PeripheralDeviceDTO> peripheralDevice, GatewayEntity gateway) {
+        boolean deviceExists;
+        for (PeripheralDeviceEntity entity : gateway.getDevices()) {
+            deviceExists = peripheralDevice.stream()
+                .anyMatch(device -> device.getUid().equals(entity.getUid()));
+            if (deviceExists) {
+                GatewayResponse<String> response = new GatewayResponse<>(409,
+                    "Device with uid: " + entity.getUid() + " already exists in a gateway!");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+        }
+        return null;
     }
 
     public ResponseEntity<GatewayResponse<String>> removeDeviceFromGateway(Long deviceId) {
@@ -151,9 +161,10 @@ public class GatewayService {
         );
     }
 
-    private List<PeripheralDeviceDTO> convertToListDeviceDto(List<PeripheralDeviceEntity> deviceEntities) {
+    private List<PeripheralDeviceDTO> convertToListDeviceDto(
+        List<PeripheralDeviceEntity> deviceEntities) {
         List<PeripheralDeviceDTO> peripheralDeviceDTOS = new ArrayList<>();
-        for (PeripheralDeviceEntity deviceEntity: deviceEntities) {
+        for (PeripheralDeviceEntity deviceEntity : deviceEntities) {
             peripheralDeviceDTOS.add(convertDeviceToDto(deviceEntity));
         }
         return peripheralDeviceDTOS;
