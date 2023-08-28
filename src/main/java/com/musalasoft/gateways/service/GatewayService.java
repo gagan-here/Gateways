@@ -16,6 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class that handles operations related to gateways and peripheral devices.
+ */
 @Service
 public class GatewayService {
 
@@ -25,6 +28,12 @@ public class GatewayService {
     @Autowired
     private PeripheralDeviceRepository deviceRepository;
 
+
+    /**
+     * Retrieves a list of all gateways from the database.
+     *
+     * @return ResponseEntity containing a list of GatewayDTOs in the response body.
+     */
     public ResponseEntity<GatewayResponse<List<GatewayDTO>>> getAllGateways() {
         List<GatewayEntity> gatewayEntities = gatewayRepository.findAll();
 
@@ -36,6 +45,13 @@ public class GatewayService {
 
     }
 
+    /**
+     * Retrieves a gateway by its serial number from the database.
+     *
+     * @param serialNumber The serial number of the gateway to retrieve.
+     * @return ResponseEntity containing the retrieved GatewayDTO in the response body.
+     *         If the gateway is not found, a 404 response is returned.
+     */
     public ResponseEntity<GatewayResponse<?>> getGatewayBySerialNumber(
         String serialNumber) {
         Optional<GatewayEntity> gateway = gatewayRepository.findBySerialNumber(serialNumber);
@@ -51,6 +67,13 @@ public class GatewayService {
         }
     }
 
+    /**
+     * Creates a new gateway in the database.
+     *
+     * @param gatewayDTO The GatewayDTO containing information for the new gateway.
+     * @return ResponseEntity indicating the status of the operation and a message in the response body.
+     *         If a gateway with the same serial number already exists, a 409 conflict response is returned.
+     */
     public ResponseEntity<GatewayResponse<?>> createGateway(GatewayDTO gatewayDTO) {
         Optional<GatewayEntity> gatewayEntity = gatewayRepository.findBySerialNumber(
             gatewayDTO.getSerialNumber());
@@ -70,6 +93,17 @@ public class GatewayService {
         return ResponseEntity.ok(response);
     }
 
+
+    /**
+     * Adds peripheral devices to a gateway.
+     *
+     * @param serialNumber     The serial number of the gateway.
+     * @param peripheralDevice List of PeripheralDeviceDTOs to add.
+     * @return ResponseEntity indicating the status of the operation and a message in the response body.
+     *         If the gateway does not exist, a 404 response is returned.
+     *         If there are more than 10 devices, a 400 bad request response is returned.
+     *         If a device already exists in the gateway, a 409 conflict response is returned.
+     */
     public ResponseEntity<GatewayResponse<String>> addDeviceToGateway(String serialNumber,
         List<PeripheralDeviceDTO> peripheralDevice) {
         Optional<GatewayEntity> gatewayEntity = gatewayRepository.findBySerialNumber(serialNumber);
@@ -127,6 +161,13 @@ public class GatewayService {
         return null;
     }
 
+    /**
+     * Removes a device from a gateway.
+     *
+     * @param deviceId The ID of the device to remove.
+     * @return ResponseEntity indicating the status of the operation and a message in the response body.
+     *         If the device is not found, a 404 response is returned.
+     */
     public ResponseEntity<GatewayResponse<String>> removeDeviceFromGateway(Long deviceId) {
         Optional<PeripheralDeviceEntity> device = deviceRepository.findById(deviceId);
         if (device.isPresent()) {
