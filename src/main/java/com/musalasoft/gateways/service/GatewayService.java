@@ -83,6 +83,17 @@ public class GatewayService {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
+            boolean deviceExists;
+
+            for (PeripheralDeviceEntity entity: gateway.getDevices()){
+                deviceExists = peripheralDevice.stream().anyMatch(device -> device.getUid().equals(entity.getUid()));
+                if (deviceExists) {
+                    GatewayResponse<String> response = new GatewayResponse<>(409,
+                        "Device with uid: " + entity.getUid() + " already exists in a gateway!");
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+                }
+            }
+
             List<PeripheralDeviceEntity> peripheralDevices = peripheralDevice.stream()
                 .map(peripheralDeviceDTO -> {
                     PeripheralDeviceEntity peripheralDeviceEntity = new PeripheralDeviceEntity(
