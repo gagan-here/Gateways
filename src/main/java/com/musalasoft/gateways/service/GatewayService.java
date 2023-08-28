@@ -135,7 +135,25 @@ public class GatewayService {
         return new GatewayDTO(
             gatewayEntity.getSerialNumber(),
             gatewayEntity.getName(),
-            gatewayEntity.getIpv4Address()
+            gatewayEntity.getIpv4Address(),
+            convertToListDeviceDto(gatewayEntity.getDevices())
+        );
+    }
+
+    private List<PeripheralDeviceDTO> convertToListDeviceDto(List<PeripheralDeviceEntity> deviceEntities) {
+        List<PeripheralDeviceDTO> peripheralDeviceDTOS = new ArrayList<>();
+        for (PeripheralDeviceEntity deviceEntity: deviceEntities) {
+            peripheralDeviceDTOS.add(convertDeviceToDto(deviceEntity));
+        }
+        return peripheralDeviceDTOS;
+    }
+
+    private PeripheralDeviceDTO convertDeviceToDto(PeripheralDeviceEntity deviceEntity) {
+        return new PeripheralDeviceDTO(
+            deviceEntity.getUid(),
+            deviceEntity.getVendor(),
+            deviceEntity.getDateCreated(),
+            deviceEntity.getStatus()
         );
     }
 }
