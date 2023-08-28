@@ -7,7 +7,7 @@ import com.musalasoft.gateways.entities.PeripheralDeviceEntity;
 import com.musalasoft.gateways.repository.GatewayRepository;
 import com.musalasoft.gateways.repository.PeripheralDeviceRepository;
 import com.musalasoft.gateways.util.GatewayResponse;
-import java.util.ArrayList;
+import com.musalasoft.gateways.util.GatewayUtility;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,7 +29,7 @@ public class GatewayService {
         List<GatewayEntity> gatewayEntities = gatewayRepository.findAll();
 
         // Convert List of entities to List of DTOs
-        List<GatewayDTO> gateways = convertToListDto(gatewayEntities);
+        List<GatewayDTO> gateways = GatewayUtility.convertToListDto(gatewayEntities);
         GatewayResponse<List<GatewayDTO>> response = new GatewayResponse<>(200,
             "Gateways Retrieved successfully", gateways);
         return ResponseEntity.ok(response);
@@ -42,7 +42,7 @@ public class GatewayService {
 
         if (gateway.isPresent()) {
             GatewayResponse<GatewayDTO> response = new GatewayResponse<>(200,
-                "Gateway retrieved successfully", convertToDto(gateway.get()));
+                "Gateway retrieved successfully", GatewayUtility.convertToDto(gateway.get()));
             return ResponseEntity.ok(response);
         } else {
             GatewayResponse<String> response = new GatewayResponse<>(404,
@@ -66,7 +66,7 @@ public class GatewayService {
         );
         gatewayRepository.save(gateway);
         GatewayResponse<GatewayDTO> response = new GatewayResponse<>(200,
-            "Gateway saved successfully in database", convertToDto(gateway));
+            "Gateway saved successfully in database", GatewayUtility.convertToDto(gateway));
         return ResponseEntity.ok(response);
     }
 
@@ -81,6 +81,12 @@ public class GatewayService {
                 GatewayResponse<String> response = new GatewayResponse<>(400,
                     "No more than 10 peripheral devices are allowed for a gateway");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            ResponseEntity<GatewayResponse<String>> devicePresent = checkIfDeviceExistsInAGateway(
+                peripheralDevice, gateway);
+            if (devicePresent != null) {
+                return devicePresent;
             }
 
             List<PeripheralDeviceEntity> peripheralDevices = peripheralDevice.stream()
@@ -106,6 +112,21 @@ public class GatewayService {
         }
     }
 
+    private static ResponseEntity<GatewayResponse<String>> checkIfDeviceExistsInAGateway(
+        List<PeripheralDeviceDTO> peripheralDevice, GatewayEntity gateway) {
+        boolean deviceExists;
+        for (PeripheralDeviceEntity entity : gateway.getDevices()) {
+            deviceExists = peripheralDevice.stream()
+                .anyMatch(device -> device.getUid().equals(entity.getUid()));
+            if (deviceExists) {
+                GatewayResponse<String> response = new GatewayResponse<>(409,
+                    "Device with uid: " + entity.getUid() + " already exists in a gateway!");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+        }
+        return null;
+    }
+
     public ResponseEntity<GatewayResponse<String>> removeDeviceFromGateway(Long deviceId) {
         Optional<PeripheralDeviceEntity> device = deviceRepository.findById(deviceId);
         if (device.isPresent()) {
@@ -121,21 +142,5 @@ public class GatewayService {
                 "Device not found with id: " + deviceId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-    }
-
-    private List<GatewayDTO> convertToListDto(List<GatewayEntity> gatewayEntities) {
-        List<GatewayDTO> gatewayDTOs = new ArrayList<>();
-        for (GatewayEntity gatewayEntity : gatewayEntities) {
-            gatewayDTOs.add(convertToDto(gatewayEntity));
-        }
-        return gatewayDTOs;
-    }
-
-    private GatewayDTO convertToDto(GatewayEntity gatewayEntity) {
-        return new GatewayDTO(
-            gatewayEntity.getSerialNumber(),
-            gatewayEntity.getName(),
-            gatewayEntity.getIpv4Address()
-        );
     }
 }
